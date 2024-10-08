@@ -1,2 +1,6 @@
 *.csv
 *.zip
+*.tex
+*.sty
+*.pdf
+*.cls
