@@ -4,6 +4,8 @@ from scipy.signal import savgol_filter
 from scipy.signal import find_peaks
 import os
 
+np.set_printoptions(linewidth=np.inf)
+
 period2 = np.zeros((2,(195-55)//5))
 period4 = np.zeros((4,(195-55)//5))
 
@@ -106,59 +108,69 @@ V4_err = doubling_err[:,2]
 V8_err = doubling_err[:,3]
 V16_err = doubling_err[:,4]
 
+delta = 4.669201609102990671853203820466201617258185577475768632745651343004134
+alpha = 2.502907875095892822283902873218215786381271376727149977336192056779235
+
 delta_est[:,1] = (V4-V2)/(V8-V4)
 delta_est[:,2] = error_delta(V2,V4,V8,V2_err,V4_err,V8_err)
 delta_est[:,3] = (V8-V4)/(V16-V8)
 delta_est[:,4] = error_delta(V4,V8,V16,V4_err,V8_err,V16_err)
 
-delta = 4.669201609102990671853203820466201617258185577475768632745651343004134
-alpha = 2.502907875095892822283902873218215786381271376727149977336192056779235
+np.set_printoptions(suppress=True)
+table1 = np.concatenate((delta_est[:,:3], abs(delta_est[:,[1]]-delta)/delta*100, delta_est[:,3:], abs(delta_est[:,[3]]-delta)/delta*100), axis=1)
+print(table1)
+
+print(np.concatenate((np.vstack(np.arange(55,195,5)),period2.T,period4.T), axis=1)[::-1,:])
+
+table2 = (np.vstack((np.arange(55,195,5), period2[0]/period4[0], error_alpha(period2[0],period4[0],period2[1],period4[1]), abs(period2[0]/period4[0]-alpha)/alpha*100, period2[0]/period4[2], error_alpha(period2[0],period4[2],period2[1],period4[3]), abs(period2[0]/period4[2]-alpha)/alpha*100)).T)[::-1,:]
+print(table2)
 
 plt.figure(0)
-plt.subplot(2,3,1)
+plt.subplot(2,2,1)
 plt.plot([50,190],[delta, delta],linestyle='--',color='k')
-plt.errorbar(np.arange(50,195,5),delta_est[:,1],yerr=delta_est[:,2],marker='o',markersize=2.5,linestyle='',capsize=5,color='r')
-plt.errorbar(np.arange(50,195,5),delta_est[:,3],yerr=delta_est[:,4],marker='o',markersize=2.5,linestyle='',capsize=5,color='g')
+plt.errorbar(delta_est[:,0],delta_est[:,1],yerr=delta_est[:,2],marker='o',markersize=2.5,linestyle='',capsize=5,color='r')
+plt.errorbar(delta_est[:,0],delta_est[:,3],yerr=delta_est[:,4],marker='o',markersize=2.5,linestyle='',capsize=5,color='g')
 plt.legend(["Expected $\delta$","1st Estimate","2nd Estimate"])
 plt.title("Estimation of 1st Feigenbaum Number")
 plt.xlabel("Frequency (kHz)")
 plt.ylabel("$\delta$")
 
-plt.subplot(2,3,4)
-plt.scatter(np.arange(50,195,5),abs(delta_est[:,1]-delta)/delta*100,s=2.5,color='r')
-plt.scatter(np.arange(50,195,5),abs(delta_est[:,3]-delta)/delta*100,s=2.5,color='g')
+plt.subplot(2,2,3)
+plt.scatter(delta_est[:,0],abs(delta_est[:,1]-delta)/delta*100,s=5,color='r')
+plt.scatter(delta_est[:,0],abs(delta_est[:,3]-delta)/delta*100,s=5,color='g')
 plt.legend(["1st Estimate","2nd Estimate"])
 plt.title("% Error for Estimation of 1st Feigenbaum Number")
 plt.xlabel("Frequency (kHz)")
 plt.ylabel("% Error")
 
+'''
 plt.subplot(2,3,2)
 plt.errorbar(np.arange(55,195,5),period2[0],yerr=period2[1],marker='o',markersize=2.5,linestyle='',capsize=5)
-plt.title("Gap of 1st Tine")
-plt.xlabel("Frequency (kHz)")
-plt.ylabel("V")
-
-plt.subplot(2,3,5)
-plt.errorbar(np.arange(55,195,5),period4[0],yerr=period4[1],marker='o',markersize=2.5,linestyle='',capsize=5)
-plt.errorbar(np.arange(55,195,5),period4[2],yerr=period4[3],marker='o',markersize=2.5,linestyle='',capsize=5)
-plt.legend(["Upper Tine Gap","Lower Tine Gap"])
-plt.title("Gap of 2nd Tines")
+plt.title("Gap of 1st Fork")
 plt.xlabel("Frequency (kHz)")
 plt.ylabel("V")
 
 plt.subplot(2,3,3)
+plt.errorbar(np.arange(55,195,5),period4[0],yerr=period4[1],marker='o',markersize=2.5,linestyle='',capsize=5)
+plt.errorbar(np.arange(55,195,5),period4[2],yerr=period4[3],marker='o',markersize=2.5,linestyle='',capsize=5)
+plt.legend(["Upper Fork Gap","Lower Fork Gap"])
+plt.title("Gap of 2nd Forks")
+plt.xlabel("Frequency (kHz)")
+plt.ylabel("V")
+'''
+plt.subplot(2,2,2)
 plt.plot([55,195],[alpha,alpha],linestyle='--',color='k')
 plt.errorbar(np.arange(55,195,5),period2[0]/period4[0],yerr=error_alpha(period2[0],period4[0],period2[1],period4[1]),marker='o',markersize=2.5,linestyle='',capsize=5,color='b')
 plt.errorbar(np.arange(55,195,5),period2[0]/period4[2],yerr=error_alpha(period2[0],period4[2],period2[1],period4[3]),marker='o',markersize=2.5,linestyle='',capsize=5,color='r')
-plt.legend(["Expected $\\alpha$","Estimate Using Upper Tine","Estimate Using Lower Tine"])
+plt.legend(["Expected $\\alpha$","Estimate Using Upper Fork","Estimate Using Lower Fork"])
 plt.title("Estimation of 2nd Feigenbaum Number")
 plt.xlabel("Frequency (kHz)")
 plt.ylabel("$\\alpha$")
 
-plt.subplot(2,3,6)
-plt.scatter(np.arange(55,195,5),abs(period2[0]/period4[0]-alpha)/alpha*100,s=2.5,color='b')
-plt.scatter(np.arange(55,195,5),abs(period2[0]/period4[2]-alpha)/alpha*100,s=2.5,color='r')
-plt.legend(["Estimate Using Upper Tine","Estimate Using Lower Tine"])
+plt.subplot(2,2,4)
+plt.scatter(np.arange(55,195,5),abs(period2[0]/period4[0]-alpha)/alpha*100,s=5,color='b')
+plt.scatter(np.arange(55,195,5),abs(period2[0]/period4[2]-alpha)/alpha*100,s=5,color='r')
+plt.legend(["Estimate Using Upper Fork","Estimate Using Lower Fork"])
 plt.title("% Error for Estimation of 2nd Feigenbaum Number")
 plt.xlabel("Frequency (kHz)")
 plt.ylabel("% Error")

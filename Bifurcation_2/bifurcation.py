@@ -6,27 +6,42 @@ import os
 
 def bifurcate():
 	plt.figure(0)
-	plt.scatter(np.arange(100,3000,100)/1e3,period1,color='k',marker='.')
+	sz = 5
+	plt.text(0.2,3.25,"Period 1")
+	plt.scatter(np.arange(100,3000,100)/1e3,period1,color='k',marker='.',s=sz)
+	plt.plot([3,3],[0,3.5],color='k',linestyle='--')
 	
+	plt.text(4.7,3.25,"Period 2")
 	for i in range(2):
-		plt.scatter(np.arange(3000,7800,100)/1e3,period2[i],color='k',marker='.')
+		plt.scatter(np.arange(3000,7800,100)/1e3,period2[i],color='k',marker='.',s=sz)
+	plt.plot([7.8,7.8],[0,3.5],color='k',linestyle='--')
 	
+	plt.text(7.9,3.25,"P4")
 	for i in range(4):
-		plt.scatter(np.arange(7800,8500,100)/1e3,period4[i],color='k',marker='.')
-	plt.scatter(np.ones(8)*8.5,period8,color='k',marker='.')
+		plt.scatter(np.arange(7800,8500,100)/1e3,period4[i],color='k',marker='.',s=sz)
+	plt.scatter(np.ones(8)*8.5,period8,color='k',marker='.',s=sz)
+	plt.plot([8.5,8.5],[0,3.5],color='k',linestyle='--')
+	
+	plt.text(9.2,3.25,"Chaos 1")
 	for volt,chao in zip(np.arange(8600,11600,100)/1e3,chaos):
-		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.')
-	'''
+		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.',s=sz)
+	plt.plot([11.6,11.6],[0,3.5],color='k',linestyle='--')
+	
+	plt.text(12.2,3.25,"Period 3")
 	for i in range(3):
-		plt.scatter(np.arange(11600,14300,100)/1e3,period3[i],color='k',marker='.')
+		plt.scatter(np.arange(11600,14300,100)/1e3,period3[i],color='k',marker='.',s=sz)
+	plt.plot([14.3,14.3],[0,3.5],color='k',linestyle='--')
+	plt.text(14.6,3.25,"P6")
 	for i in range(6):
-		plt.scatter(np.arange(14300,15400,100)/1e3,period6[i],color='k',marker='.')
-	plt.scatter(np.ones(12)*15.4,period12,color='k',marker='.')
+		plt.scatter(np.arange(14300,15400,100)/1e3,period6[i],color='k',marker='.',s=sz)
+	plt.scatter(np.ones(12)*15.4,period12,color='k',marker='.',s=sz)
+	plt.plot([15.4,15.4],[0,3.5],color='k',linestyle='--')
+	
+	plt.text(16.1,3.25,"Chaos 2")
 	for volt,chao in zip(np.arange(15500,20100,100)/1e3,chaos2):
-		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.')
-		'''
-	plt.xlabel("$V_{drive}$ $(V_{PP}$)")
-	plt.ylabel("$V_{I}$ $(V)$")
+		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.',s=sz)
+	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
+	plt.ylabel("$V_{R}$ (V)")
 	plt.show()
 
 def quickplot(start,end):

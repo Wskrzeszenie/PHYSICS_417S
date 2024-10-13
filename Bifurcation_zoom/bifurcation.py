@@ -8,35 +8,35 @@ np.set_printoptions(linewidth=np.inf)
 
 def bifurcate():
 	plt.figure(0)
+	sz = 10
 	for i in range(2):
-		plt.scatter(np.arange(7800,7830,10)/1e3,period2[i],color='k',marker='.')
+		plt.scatter(np.arange(7800,7830,10)/1e3,period2[i],color='k',marker='.',s=sz)
 	for i in range(4):
-		plt.scatter(np.arange(7830,8460,10)/1e3,period4[i],color='k',marker='.')
+		plt.scatter(np.arange(7830,8460,10)/1e3,period4[i],color='k',marker='.',s=sz)
 	for i in range(8):
-		plt.scatter(np.arange(8460,8580,10)/1e3,period8[i],color='k',marker='.')
+		plt.scatter(np.arange(8460,8580,10)/1e3,period8[i],color='k',marker='.',s=sz)
 	for volt,chao in zip(np.arange(8580,8690,10)/1e3,chaos):
-		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.')
-	plt.scatter(np.ones(12)*8.69,period3_early[0],color='k',marker='.')
-	plt.scatter(np.ones(12)*8.7,period3_early[1],color='k',marker='.')
+		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.',s=sz)
+	plt.scatter(np.ones(12)*8.69,period3_early[0],color='k',marker='.',s=sz)
+	plt.scatter(np.ones(12)*8.7,period3_early[1],color='k',marker='.',s=sz)
 	for volt,chao in zip(np.arange(8710,9010,10)/1e3,chaos2):
-		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.')
-	plt.xlabel("$V_{drive}$ $(V_{PP}$)")
-	plt.ylabel("$V_{I}$ $(V)$")
-	plt.show()
+		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.',s=sz)
+	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
+	plt.ylabel("$V_{R}$ (V)")
 	
 def bifurcate2():
 	plt.figure(1)
+	sz = 10
 	for i in range(3):
-		plt.scatter(np.arange(14300,14420,10)/1e3,period3[i],color='k',marker='.')
+		plt.scatter(np.arange(14300,14420,10)/1e3,period3[i],color='k',marker='.',s=sz)
 	for i in range(6):
-		plt.scatter(np.arange(14420,15350,10)/1e3,period6[i],color='k',marker='.')
+		plt.scatter(np.arange(14420,15350,10)/1e3,period6[i],color='k',marker='.',s=sz)
 	for i in range(12):
-		plt.scatter(np.arange(15350,15760,10)/1e3,period12[i],color='k',marker='.')
+		plt.scatter(np.arange(15350,15760,10)/1e3,period12[i],color='k',marker='.',s=sz)
 	for volt,chao in zip(np.arange(15760,16010,10)/1e3,chaos3):
-		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.')
-	plt.xlabel("$V_{drive}$ $(V_{PP}$)")
-	plt.ylabel("$V_{I}$ $(V)$")
-	plt.show()
+		plt.scatter(np.ones(len(chao))*volt,list(chao),color='k',marker='.',s=sz)
+	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
+	plt.ylabel("$V_{R}$ (V)")
 
 def split3(x):
 	if x < 14500:
@@ -359,4 +359,6 @@ if not os.path.isfile("chaos3.npy"):
 else:
 	chaos3 = np.load("chaos3.npy",allow_pickle=True)
 
+bifurcate()
 bifurcate2()
+plt.show()
