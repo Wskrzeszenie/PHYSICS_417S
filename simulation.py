@@ -25,7 +25,7 @@ def simulate(V_dr, f=15.5e3):
 	t = np.linspace(0,t_end,sz)
 	q = sp.integrate.odeint(circuit, [0, 0], t, args=(V_dr,f), tfirst=True).T
 	peaks, _ = sp.signal.find_peaks(q[1]*100000, distance = (1/15.5e3)/(t_end/sz)*0.85)
-	uniques = set((q[1][peaks])[len(peaks)//2:])
+	uniques = set(R*(q[1][peaks])[len(peaks)//2:])
 	return uniques
 	
 def four_plot(V_dr, f=15.5e3, density=1):
@@ -54,32 +54,22 @@ def four_plot(V_dr, f=15.5e3, density=1):
 
 	plt.subplot(2,2,4)
 	plt.plot(freq[:len(freq)//2], abs(sol_fft[:len(freq)//2]))
-	plt.xlabel('f (Hz)')
+	plt.xlabel('$f$ (Hz)')
+	plt.ylabel('Amplitude')
 	plt.yscale('log')
 	
 	plt.xlim(left=0,right=f*1.1)
 	plt.tight_layout()
-
-if __name__ == '__main__':
-	'''
-	four_plot(0.15)		#1
-	four_plot(1.5)		#2
-	four_plot(1.85)		#4
-	four_plot(1.865)	#8
-	four_plot(1.9)		#chaos
-	'''
+	
+def bifurcation(start, end, n):
 	with mp.Pool(processes=mp.cpu_count()-1) as p:
-		results = p.map(simulate, np.linspace(1.8633,1.8635,100))
-	for vals,V in zip(results, np.linspace(1.8633,1.8635,100)):
+		results = p.map(simulate, np.linspace(start, end, n))
+	for vals,V in zip(results, np.linspace(start, end, n)):
 		plt.scatter(np.ones(len(vals))*V, list(vals), s=0.1, color='k')
 	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
 	plt.ylabel("$V_R$ (V)")
-	plt.show()
-	exit()
-	for i in np.linspace(1.865,1.87,11):
-		four_plot(i,density=10)
-	plt.show()
-	exit()
+
+if __name__ == '__main__':
 	plt.figure(0)
 	if not os.path.isfile("full_bifurcation.npy"):
 		with mp.Pool(processes=mp.cpu_count()-1) as p:
@@ -90,8 +80,8 @@ if __name__ == '__main__':
 		plt.scatter(np.ones(len(vals))*V, list(vals), s=0.1, color='k')
 	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
 	plt.ylabel("$V_R$ (V)")
+	plt.tight_layout()
 	plt.savefig('full_bifurcation.png',dpi=150)
-	
 	plt.figure(1)
 	if not os.path.isfile("partial_bifurcation.npy"):
 		with mp.Pool(processes=mp.cpu_count()-1) as p:
@@ -102,8 +92,8 @@ if __name__ == '__main__':
 		plt.scatter(np.ones(len(vals))*V, list(vals), s=0.1, color='k')
 	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
 	plt.ylabel("$V_R$ (V)")
+	plt.tight_layout()
 	plt.savefig('partial_bifurcation.png',dpi=150)
-	
 	plt.figure(2)
 	if not os.path.isfile("small_bifurcation.npy"):
 		with mp.Pool(processes=mp.cpu_count()-1) as p:
@@ -114,6 +104,6 @@ if __name__ == '__main__':
 		plt.scatter(np.ones(len(vals))*V, list(vals), s=0.1, color='k')
 	plt.xlabel("$V_{dr}$ ($\\mathrm{V_{PP}}$)")
 	plt.ylabel("$V_R$ (V)")
+	plt.tight_layout()
 	plt.savefig('small_bifurcation.png',dpi=150)
-	
 	plt.show()
