@@ -70,6 +70,9 @@ def bifurcation(start, end, n):
 	plt.ylabel("$V_R$ (V)")
 
 if __name__ == '__main__':
+	four_plot(1, f=2.5e3)
+	plt.show()
+	exit()
 	plt.figure(0)
 	if not os.path.isfile("full_bifurcation.npy"):
 		with mp.Pool(processes=mp.cpu_count()-1) as p:
