@@ -16,15 +16,15 @@ V0 = 0.05
 def diode(q):
 	return (C2-C1)/(2*C1*C2)*np.abs(q)+(C2+C1)/(2*C1*C2)*q+V0
 
-def circuit(t, q, V_dr, f=15.5e3):
+def circuit(t, q, V_dr, f):
 		return [q[1], 1/L*(-R*q[1]-diode(q[0])+V_dr/2*np.cos(2*np.pi*f*t))]
 
-def simulate(V_dr, f=15.5e3):
+def simulate(V_dr, f=17e3):
 	sz = 10000000*2
 	t_end = 0.05
 	t = np.linspace(0,t_end,sz)
 	q = sp.integrate.odeint(circuit, [0, 0], t, args=(V_dr,f), tfirst=True).T
-	peaks, _ = sp.signal.find_peaks(q[1]*100000, distance = (1/15.5e3)/(t_end/sz)*0.85)
+	peaks, _ = sp.signal.find_peaks(q[1]*100000, distance = (1/f)/(t_end/sz)*0.85)
 	uniques = set(R*(q[1][peaks])[len(peaks)//2:])
 	return uniques
 	
@@ -70,7 +70,7 @@ def bifurcation(start, end, n):
 	plt.ylabel("$V_R$ (V)")
 
 if __name__ == '__main__':
-	four_plot(1, f=2.5e3)
+	bifurcation(0.85, 0.95, 100)
 	plt.show()
 	exit()
 	plt.figure(0)
