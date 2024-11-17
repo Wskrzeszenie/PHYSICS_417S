@@ -1,0 +1,18 @@
+Files -> open data source -> click detector -> select one file
+
+MCA 	-> Acquire setup -> external control: start
+	-> adjust -> ADC -> LLD = 2.0, ULD = 7.5
+		 -> MCS -> Dwell Value = 70 us
+
+Analysis
+cd into my folder
+.x MOSplotF.C
+hist4->Fit("gaus","R","",0.2,0.22)
+			left,right
+
+
+
+.q to quit
+analysis: add ratio of peaks (largest to 2nd largest to 3rd largest)
+
+Alpha Iron
