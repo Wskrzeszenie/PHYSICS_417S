@@ -3,7 +3,7 @@ from mossbauer_common import *
 file_check()
 
 #calibrate = [90, 180, 55, 65, 135]
-calibrate = [136, 89, 46, 66, 108, 58, 94, 66, 58]
+calibrate = [136, 89, 46, 66, 108, 58, 94, 69, 76]
 
 
 for index, f in enumerate(filelist):
