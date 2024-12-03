@@ -6,25 +6,59 @@ import scipy.optimize as opt
 
 from lmfit.models import GaussianModel
 
-filelist = ["alpha_Fe.TKA", 
-			"Fe2O3.TKA", 
-			"K4Fe_CN_6.TKA", 
-			"LiFePO4.TKA", 
-			"stainless.TKA",
-			"FeC2O4.TKA",
-			"7mu_Fe.TKA"]
+filelist = ["alpha_Fe", 
+			"Fe2O3", 
+			"K4Fe_CN_6", 
+			"LiFePO4_1", 
+			"stainless",
+			"FeC2O4_1",
+			"7mu_Fe",
+			"LiFePO4_2",
+			"FeC2O4_2"]
 
-missing_files = 0
-for f in filelist:
-	if not os.path.isfile(f):
-		print("Missing file: ", f)
+exp_peaks = [12, 12, 2, 4, 2, 4, 12, 4, 4]
+c = 299792458 # m/s
+
+def file_check():
+	missing_files = 0
+	for f in filelist:
+		if not os.path.isfile(f+".TKA"):
+			print("Missing file: ", f)
+		
+	if missing_files: exit()
 	
-if missing_files: exit()
+def energy_approx(v):
+	E = 14.4e3
+	return E*v/c
+	
+def v(t, w, phi, model=0):
+	r = 2e-3
+	x = w*t+phi
+	if model == 0:
+		return r*w*np.cos(x)
+	else:
+		return r*r*np.cos(x)*np.sin(x)/np.sqrt(c*c-r*r*np.cos(x)*np.cos(x))+r*np.cos(x)
+	return 0
 
-#calibrate = [90, 180, 55, 65, 135]
-calibrate = [136, 89, 46, 66, 108, 58, 94]
-exp_peaks = [12, 12, 2, 4, 2, 4, 12]
+def sin_fit(t, c, A, w, phi):
+	return c+A*np.sin(w*t+phi)
+	
+#def exact_fit(t, a, b, c, w, phi):
+#	return a - b + np.sqrt(b**2-(c*np.cos(w*t+phi))**2)-c*np.sin(w*t+phi)
 
+def gauss_fit(x, a, mu, sigma):
+	return a*np.exp(-(x-mu)*(x-mu)/(2*sigma*sigma))
+	
+def calculate_energies(result, popt):
+	result_params = list(reversed(result.best_values.keys()))
+	#total_fit = np.zeros_like(bins)
+	for i in range(len(result_params)//3):
+		amp = result.best_values[result_params[int(i*3)]]
+		mu = result.best_values[result_params[int(i*3+1)]]
+		sigma = result.best_values[result_params[int(i*3+2)]]
+		print(np.round(mu, 3), 1e8*energy_approx(v(mu, popt[2], popt[3])))
+		#total_fit += gauss_fit(bins, amp, mu, sigma)
+	
 def gen_model(num_peaks, guess_centers, guess_amps):
 	if num_peaks == 2:
 		model = (GaussianModel(prefix='p0_')
@@ -70,58 +104,3 @@ def gen_model(num_peaks, guess_centers, guess_amps):
 									pa_center=guess_centers[10], pa_amplitude=guess_amps[10], pa_sigma=0.001,
 									pb_center=guess_centers[11], pb_amplitude=guess_amps[11], pb_sigma=0.001)	
 		return model, params
-
-def sin_fit(t, c, A, w, phi):
-	return c+A*np.sin(w*t+phi)
-	
-def exact_fit(t, a, b, c, w, phi):
-	return a - b + np.sqrt(b**2-(c*np.cos(w*t+phi))**2)-c*np.sin(w*t+phi)
-
-def gauss_fit(x, a, mu, sigma):
-	return a*np.exp(-(x-mu)*(x-mu)/(2*sigma*sigma))
-
-for index, f in enumerate(filelist):
-	plt.figure(index)
-	counts = np.loadtxt(f)[2:14262]	# so that data is 14260 = 2*2*5*23*31, can rebin into nice bin sizes
-	bins = np.arange(len(counts))*70e-6+35e-6
-	
-	plt.subplot(3, 1, 1)
-	plt.suptitle(f)
-	plt.stairs(counts, np.arange(len(counts)+1)*70e-6, color='k')
-	plt.xlim(left=0,right=1)
-	
-	smooth = sp.signal.savgol_filter(-counts, 51, 3)
-	peaks, _ = sp.signal.find_peaks(smooth, distance=100, prominence=calibrate[index])
-	
-	counts_filtered = np.copy(counts)
-	bins_filtered = np.copy(bins)
-	w = 100
-	print(len(peaks))
-	
-	for peak in peaks:
-		counts_filtered[(peak-w):(peak+w)] = np.nan
-		bins_filtered[(peak-w):(peak+w)] = np.nan
-	
-	plt.subplot(3, 1, 2)
-	plt.stairs(counts_filtered, np.arange(len(counts)+1)*70e-6, color='k')
-	
-	counts_filtered = counts_filtered[~np.isnan(counts_filtered)]
-	bins_filtered = bins_filtered[~np.isnan(bins_filtered)]
-	
-	popt, pcov = opt.curve_fit(sin_fit, bins_filtered, counts_filtered, 
-								p0=[np.mean(counts_filtered), (max(counts_filtered)-min(counts_filtered))/2, 2*np.pi, 0])
-	
-	plt.plot(bins, sin_fit(bins, *popt), color='r')
-	plt.xlim(left=0,right=1)
-	
-	plt.subplot(3, 1, 3)
-	counts_cleaned = sin_fit(bins, *popt)-counts
-	plt.stairs(counts_cleaned, np.arange(len(counts)+1)*70e-6)
-
-	model, params = gen_model(exp_peaks[index], bins[peaks], counts_cleaned[peaks])
-	result = model.fit(counts_cleaned, params, x=bins)
-	
-	plt.plot(bins, result.best_fit)
-	plt.xlim(left=0,right=1)
-	
-plt.show()

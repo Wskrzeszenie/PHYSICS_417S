@@ -1,0 +1,9 @@
+Mysterious Peak before 14.4 keV
+- All peaks above 14.4 keV come from the nucleus directly
+- Lower-energy peaks come from conversion and Auger electrons that scatter following absorption
+
+Time uncertainty:
+
+measure delta n from top 1/4 to bottom 1/4 drop, multiplied by 70 us bin size to get time uncertainty
+
+should be small
